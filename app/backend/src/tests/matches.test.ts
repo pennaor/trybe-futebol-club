@@ -11,7 +11,7 @@ chai.use(chaiHttp);
 const { app } = new App();
 const { expect } = chai;
 
-describe('Rotas de matches', async function () {
+describe('Rotas GET de matches', async function () {
   it('GET "/matches" deve responder com status code 200 e array das partidas', async function () {
     const matchFindAll = sinon
       .stub(Match, 'findAll')
@@ -119,4 +119,34 @@ describe('Rotas de matches', async function () {
 
     matchFindAll.restore();
   });
+
+  it('POST "/matches" deve responder com status code 201 e match criada', async function () {
+    const { id, inProgress , ...body } = matches.new;
+    const response = await chai
+      .request(app)
+      .post('/matches')
+      .send(body);
+      
+    expect(response.status).to.be.equal(201);
+    expect(response.body).to.be.instanceOf(Object);
+
+    expect(response.body).haveOwnProperty('id');
+    expect(response.body.id).to.be.a('number');
+
+    expect(response.body).haveOwnProperty('homeTeam');
+    expect(response.body.homeTeam).to.be.a('number');
+
+    expect(response.body).haveOwnProperty('homeTeamGoals');
+    expect(response.body.homeTeamGoals).to.be.a('number');
+    
+    expect(response.body).haveOwnProperty('awayTeam');
+    expect(response.body.awayTeam).to.be.a('number');
+
+    expect(response.body).haveOwnProperty('awayTeamGoals');
+    expect(response.body.awayTeamGoals).to.be.a('number');
+
+    expect(response.body).haveOwnProperty('inProgress');
+    expect(response.body.inProgress).to.be.a('boolean');
+  });
 });
+

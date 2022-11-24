@@ -18,11 +18,10 @@ class MatchController {
     return res.status(200).json(matches);
   };
 
-  // public getByProgressStatus: RequestHandler = async (req, res) => {
-  //   const { inProgress } = req.params;
-  //   const matches = await this._service.getByProgressStatus(inProgress);
-  //   return res.status(200).json(matches);
-  // };
+  public create: RequestHandler = async (req, res) => {
+    const match = await this._service.create(req.body);
+    return res.status(201).json(match);
+  };
 }
 
 export default MatchController;

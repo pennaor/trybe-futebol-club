@@ -36,10 +36,20 @@ const inProgress = [
   },
 ];
 
+const newMatch = {
+  id: 5,
+  homeTeam: 3,
+  homeTeamGoals: 3,
+  awayTeam: 4,
+  awayTeamGoals: 4,
+  inProgress: true,
+};
+
 const matches = {
   inProgress,
   finished,
   all: [...inProgress, ...finished],
-}
+  new: newMatch,
+};
 
 export default matches;

@@ -13,6 +13,7 @@ class MatchRouter {
 
   private config() {
     this.router.get('/', this._controller.getAll);
+    this.router.post('/', this._controller.create);
   }
 }
 

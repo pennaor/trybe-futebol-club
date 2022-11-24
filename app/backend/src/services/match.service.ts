@@ -1,3 +1,4 @@
+import { IMatch } from '../interfaces';
 import Team from '../database/models/Team';
 import Match from '../database/models/Match';
 
@@ -23,6 +24,12 @@ class MatchesService {
       where: { inProgress: inProgress === 'true' },
     });
     return matches;
+  };
+
+  public create = async (payload: IMatch): Promise<Match> => {
+    const { inProgress, ...rest } = payload;
+    const match = await this._matchModel.create({ ...rest });
+    return match;
   };
 }
 

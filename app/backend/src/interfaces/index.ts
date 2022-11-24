@@ -1,8 +1,7 @@
 import JwtUserPayload from './JwtUserPayload';
-
-type Mock = { mock: '' };
+import IMatch from './IMatch';
 
 export {
-  Mock,
   JwtUserPayload,
+  IMatch,
 };

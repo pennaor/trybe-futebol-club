@@ -25,11 +25,12 @@ const validCredentials = {
   }
 };
 
-const tokenLength = 156;
+const mockToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZSI6InVzZXIiLCJpYXQiOjE2NjkyODkxNTQsImV4cCI6MTY2OTM3NTU1NH0.w1imqd2wgLDlNGSuEPphDPknToIQssRztPJyYtYvuHw';
+
 
 export {
   admin,
   user,
   validCredentials,
-  tokenLength
+  mockToken
 };

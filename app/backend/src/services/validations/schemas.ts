@@ -1,6 +1,8 @@
 import Joi = require('joi');
 import { BadRequest } from '../../errors';
 
+const identifierSchema = Joi.number().integer().min(1).label('Id');
+
 const userSchemas = {
   credentials: Joi.object({
     email: Joi.string().min(1).required(),
@@ -12,5 +14,6 @@ const teamSchemas = {};
 
 export {
   userSchemas,
+  identifierSchema,
   teamSchemas,
 };

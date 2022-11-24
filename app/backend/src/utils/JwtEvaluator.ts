@@ -6,11 +6,11 @@ import { JwtUserPayload } from '../interfaces';
 const secret = process.env.JWT_SECRET || 'secret_is_secret';
 
 export default class JwtEvaluator {
-  public createToken = (data: object) => Jwt.sign(data, secret, {
+  public static createToken = (data: object) => Jwt.sign(data, secret, {
     algorithm: 'HS256', expiresIn: '1d',
   });
 
-  public validateToken = (token = ''): JwtUserPayload => {
+  public static validateToken = (token = ''): JwtUserPayload => {
     const result = <unknown> Jwt.verify(token, secret, {}, (error, decoded) => {
       if (!error) {
         return decoded;

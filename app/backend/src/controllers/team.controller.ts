@@ -11,7 +11,7 @@ class LoginController {
 
   public getById: RequestHandler = async (req, res) => {
     const { id } = req.params;
-    const team = await this._service.getById(Number(id));
+    const team = await this._service.getById(id);
     return res.status(200).json(team);
   };
 }

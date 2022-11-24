@@ -10,8 +10,8 @@ class TeamService {
     return teams;
   };
 
-  public getById = async (teamId: number): Promise<Team> => {
-    validate.identifier(teamId);
+  public getById = async (teamId: string): Promise<Team> => {
+    validate.identifier(Number(teamId));
 
     const team = await this._teamModel.findByPk(teamId);
     if (!team) {

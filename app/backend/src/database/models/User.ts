@@ -31,7 +31,7 @@ User.init({
   password: {
     type: STRING,
     allowNull: false,
-  }
+  },
 }, {
   underscored: true,
   sequelize: db,

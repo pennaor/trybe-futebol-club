@@ -11,15 +11,7 @@ chai.use(chaiHttp);
 const { app } = new App();
 const { expect } = chai;
 
-describe('Rota de teams', async function () {
-  before(() => {
-    
-  });
-
-  after(() => {
-
-  })
-
+describe('Rotas de teams', async function () {
   it('GET "/teams" deve responder com status code 200 e array de times', async function () {
     const teamFindAll = sinon
       .stub(Team, 'findAll')
@@ -32,7 +24,7 @@ describe('Rota de teams', async function () {
     expect(response.status).to.be.equal(200);
     expect(response.body).to.be.instanceOf(Array);
     expect(response.body).to.have.length(3);
-    response.body.forEach((team: { id: number, teamName: string }) => {
+    response.body.forEach((team: Team) => {
       expect(team).haveOwnProperty('id');
       expect(team.id).to.be.a('number');
       expect(team).haveOwnProperty('teamName');

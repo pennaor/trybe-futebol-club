@@ -13,7 +13,7 @@ chai.use(chaiHttp);
 const { app } = new App();
 const { expect } = chai;
 
-describe('Rota de login', async function () {
+describe('Rotas de login', async function () {
   it('a api deve responder com um token se passado credenciais de usuário válidas', async function () {
     const compareSync = sinon
       .stub(bcryptjs, 'compareSync')

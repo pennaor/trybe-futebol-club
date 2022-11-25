@@ -10,7 +10,8 @@ class MatchController {
   };
 
   public create: RequestHandler = async (req, res) => {
-    const match = await this._service.create(req.body);
+    const { user, ...body } = req.body;
+    const match = await this._service.create(body);
     return res.status(201).json(match);
   };
 

@@ -2,6 +2,7 @@ import { IMatch } from '../interfaces';
 import Team from '../database/models/Team';
 import Match from '../database/models/Match';
 import validate from './validations/validateSchema';
+import { NotFound } from '../errors';
 
 class MatchesService {
   private _matchModel = Match;
@@ -28,8 +29,15 @@ class MatchesService {
 
   public create = async (payload: IMatch): Promise<Match> => {
     validate.newMatch(payload);
-    const match = await this._matchModel.create({ ...payload });
-    return match;
+    try {
+      const match = await this._matchModel.create({ ...payload });
+      return match;
+    } catch (error) {
+      if (error instanceof Error && error.name === 'SequelizeForeignKeyConstraintError') {
+        throw new NotFound('There is no team with such id!', error);
+      }
+      throw error;
+    }
   };
 
   public finish = async (matchId: string): Promise<void> => {

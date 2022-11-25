@@ -6,6 +6,7 @@ import chaiHttp = require('chai-http');
 import App from '../app';
 import Match from '../database/models/Match';
 import matches from './mocks/matches';
+import { fkContraintError } from './mocks/errors';
 
 chai.use(chaiHttp);
 const { app } = new App();
@@ -151,6 +152,28 @@ describe('Rotas GET de matches', async function () {
 
     expect(response.body).haveOwnProperty('inProgress');
     expect(response.body.inProgress).to.be.a('boolean');
+
+    matchCreate.restore();
+  });
+
+  it('POST "/matches" deve responder com status code 404 se não existir um time com o ID enviado na requisição', async function () {
+    const matchCreate = sinon
+      .stub(Match, 'create')
+      .throws(fkContraintError);
+
+    const { id, inProgress , ...body } = matches.new;
+    body.homeTeam = 999;
+
+    const response = await chai
+      .request(app)
+      .post('/matches')
+      .send(body);
+    
+    expect(response.status).to.be.equal(404); 
+    expect(response.body).to.be.instanceOf(Object);
+
+    expect(response.body).haveOwnProperty('message');
+    expect(response.body.message).to.be.equal('There is no team with such id!');
 
     matchCreate.restore();
   });

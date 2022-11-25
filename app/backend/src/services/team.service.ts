@@ -15,7 +15,7 @@ class TeamService {
 
     const team = await this._teamModel.findByPk(teamId);
     if (!team) {
-      throw new NotFound('Time não encontrado');
+      throw new NotFound('Unknown team');
     }
 
     return team;

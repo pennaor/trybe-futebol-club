@@ -1,4 +1,5 @@
 import * as express from 'express';
+import authenticateUser from '../middlewares/authenticateUser';
 import MatchController from '../controllers/match.controller';
 
 class MatchRouter {
@@ -14,7 +15,7 @@ class MatchRouter {
   private config() {
     this.router.patch('/:id/finish', this._controller.finish);
     this.router.get('/', this._controller.getAll);
-    this.router.post('/', this._controller.create);
+    this.router.post('/', authenticateUser, this._controller.create);
   }
 }
 

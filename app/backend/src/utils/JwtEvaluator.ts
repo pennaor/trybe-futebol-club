@@ -3,7 +3,7 @@ import 'dotenv/config';
 import { Unauthorized } from '../errors';
 import { JwtUserPayload } from '../interfaces';
 
-const secret = process.env.JWT_SECRET || 'secret_is_secret';
+const secret = process.env.JWT_SECRET as string;
 
 export default class JwtEvaluator {
   public static createToken = (data: object) => Jwt.sign(data, secret, {
@@ -11,16 +11,11 @@ export default class JwtEvaluator {
   });
 
   public static validateToken = (token = ''): JwtUserPayload => {
-    const result = <unknown> Jwt.verify(token, secret, {}, (error, decoded) => {
-      if (!error) {
-        return decoded;
-      }
-      if (error.message === 'jwt must be provided') {
-        throw new Unauthorized('Token not found');
-      }
-      throw new Unauthorized('Invalid token');
-    }) as JwtUserPayload;
-
-    return result;
+    try {
+      const result = Jwt.verify(token, secret) as JwtUserPayload;
+      return result;
+    } catch (error) {
+      throw new Unauthorized('Token must be a valid token', error);
+    }
   };
 }

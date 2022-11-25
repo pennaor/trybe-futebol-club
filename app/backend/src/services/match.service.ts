@@ -1,35 +1,40 @@
 import { IMatch } from '../interfaces';
 import Team from '../database/models/Team';
 import Match from '../database/models/Match';
+import validate from './validations/validateSchema';
 
 class MatchesService {
   private _matchModel = Match;
 
-  public getAll = async (): Promise<Match[]> => {
-    const matches = await this._matchModel.findAll({
-      include: [
-        { model: Team, as: 'teamHome', attributes: ['teamName'] },
-        { model: Team, as: 'teamAway', attributes: ['teamName'] },
-      ],
-    });
-    return matches;
-  };
+  public getAll = async (queries: qs.ParsedQs): Promise<Match[]> => {
+    const findOptions = { where: {} };
 
-  public getByProgressStatus = async (inProgress: string): Promise<Match[]> => {
+    const { inProgress } = queries;
+    if (inProgress === 'true') {
+      findOptions.where = { inProgress: true };
+    } else if (inProgress === 'false') {
+      findOptions.where = { inProgress: false };
+    }
+
     const matches = await this._matchModel.findAll({
       include: [
         { model: Team, as: 'teamHome', attributes: ['teamName'] },
         { model: Team, as: 'teamAway', attributes: ['teamName'] },
       ],
-      where: { inProgress: inProgress === 'true' },
+      ...findOptions,
     });
     return matches;
   };
 
   public create = async (payload: IMatch): Promise<Match> => {
-    const { inProgress, ...rest } = payload;
-    const match = await this._matchModel.create({ ...rest });
+    validate.newMatch(payload);
+    const match = await this._matchModel.create({ ...payload });
     return match;
+  };
+
+  public finish = async (matchId: string): Promise<void> => {
+    validate.identifier(Number(matchId));
+    await this._matchModel.update({ inProgress: false }, { where: { id: matchId } });
   };
 }
 

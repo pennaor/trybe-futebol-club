@@ -55,7 +55,7 @@ describe('Rotas GET de matches', async function () {
 
     const response = await chai
       .request(app)
-      .get('/matches?inProgress=true');
+      .get('/matches?inProgress=false');
       
     expect(response.status).to.be.equal(200);
     expect(response.body).to.be.instanceOf(Array);
@@ -121,6 +121,10 @@ describe('Rotas GET de matches', async function () {
   });
 
   it('POST "/matches" deve responder com status code 201 e match criada', async function () {
+    const matchCreate = sinon
+      .stub(Match, 'create')
+      .resolves(matches.new as Match);
+
     const { id, inProgress , ...body } = matches.new;
     const response = await chai
       .request(app)
@@ -147,6 +151,28 @@ describe('Rotas GET de matches', async function () {
 
     expect(response.body).haveOwnProperty('inProgress');
     expect(response.body.inProgress).to.be.a('boolean');
+
+    matchCreate.restore();
+  });
+
+  it('PATCH "/matches/:id/finish" deve responder com status code 200 e mensagem "Finished"', async function () {
+    const matchUpdate = sinon
+      .stub(Match, 'update')
+      .resolves();
+
+    const match = matches.inProgress[0];
+
+    const response = await chai
+      .request(app)
+      .patch(`/matches/${match.id}/finish`);
+      
+    expect(response.status).to.be.equal(200);
+    expect(response.body).to.be.instanceOf(Object);
+
+    expect(response.body).haveOwnProperty('message');
+    expect(response.body.message).to.be.equal('Finished');
+
+    matchUpdate.restore();
   });
 });
 

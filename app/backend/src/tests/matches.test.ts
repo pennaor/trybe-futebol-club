@@ -7,6 +7,8 @@ import App from '../app';
 import Match from '../database/models/Match';
 import matches from './mocks/matches';
 import { fkContraintError } from './mocks/errors';
+import JwtEvaluator from '../utils/JwtEvaluator';
+import { JwtUserPayload } from '../interfaces';
 
 chai.use(chaiHttp);
 const { app } = new App();
@@ -21,7 +23,7 @@ describe('Rotas GET de matches', async function () {
     const response = await chai
       .request(app)
       .get('/matches');
-      
+          
     expect(response.status).to.be.equal(200);
     expect(response.body).to.be.instanceOf(Array);
     expect(response.body).to.have.length(matches.all.length);
@@ -126,6 +128,10 @@ describe('Rotas GET de matches', async function () {
       .stub(Match, 'create')
       .resolves(matches.new as Match);
 
+    const validateToken = sinon
+      .stub(JwtEvaluator, 'validateToken')
+      .returns({} as JwtUserPayload);
+
     const { id, inProgress , ...body } = matches.new;
     const response = await chai
       .request(app)
@@ -154,12 +160,17 @@ describe('Rotas GET de matches', async function () {
     expect(response.body.inProgress).to.be.a('boolean');
 
     matchCreate.restore();
+    validateToken.restore();
   });
 
   it('POST "/matches" deve responder com status code 404 se não existir um time com o ID enviado na requisição', async function () {
     const matchCreate = sinon
       .stub(Match, 'create')
       .throws(fkContraintError);
+
+    const validateToken = sinon
+      .stub(JwtEvaluator, 'validateToken')
+      .returns({} as JwtUserPayload);
 
     const { id, inProgress , ...body } = matches.new;
     body.homeTeam = 999;
@@ -176,6 +187,7 @@ describe('Rotas GET de matches', async function () {
     expect(response.body.message).to.be.equal('There is no team with such id!');
 
     matchCreate.restore();
+    validateToken.restore();
   });
 
   it('PATCH "/matches/:id/finish" deve responder com status code 200 e mensagem "Finished"', async function () {
@@ -196,6 +208,10 @@ describe('Rotas GET de matches', async function () {
     expect(response.body.message).to.be.equal('Finished');
 
     matchUpdate.restore();
+  });
+
+  it('leaderboard', async function () {
+
   });
 });
 

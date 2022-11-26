@@ -12,12 +12,10 @@ class TeamService {
 
   public getById = async (teamId: string): Promise<Team> => {
     validate.identifier(Number(teamId));
-
     const team = await this._teamModel.findByPk(teamId);
     if (!team) {
       throw new NotFound('Unknown team');
     }
-
     return team;
   };
 }

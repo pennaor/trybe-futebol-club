@@ -11,7 +11,6 @@ interface TeamMatches {
 }
 
 type TeamRank = {
-  id?: number;
   name: string;
   totalPoints: number;
   totalGames: number;
@@ -24,8 +23,31 @@ type TeamRank = {
   efficiency: number;
 };
 
+type Goals = {
+  favor: number;
+  own: number;
+};
+
+type MatchResult = {
+  points: 0 | 1 | 3;
+  victories: 0 | 1;
+  draws: 0 | 1;
+  losses: 0 | 1;
+  goals: Goals;
+};
+
+const emptyMatchResult: MatchResult = {
+  points: 0,
+  victories: 0,
+  draws: 0,
+  losses: 0,
+  goals: {
+    favor: 0,
+    own: 0,
+  },
+};
+
 const emptyRank: TeamRank = {
-  id: 0,
   name: '',
   totalPoints: 0,
   totalGames: 0,
@@ -38,54 +60,79 @@ const emptyRank: TeamRank = {
   efficiency: 0,
 };
 
+interface ITeam {
+  id: number;
+  teamName: string;
+}
+
 class LeaderBoardService {
   private _teamModel = Team;
 
   private _matchModel = Match;
 
-  private setMatchResult = (teamRank: TeamRank): TeamRank => {
-    const rank = { ...teamRank };
-    if (teamRank.goalsFavor > teamRank.goalsOwn) {
-      rank.totalPoints += 3;
-      rank.totalVictories += 1;
-    } else if (teamRank.goalsFavor === teamRank.goalsOwn) {
-      rank.totalPoints += 1;
-      rank.totalDraws += 1;
-    } else {
-      rank.totalLosses += 1;
-    }
-    return rank;
+  private updateTeamRank = (rank: TeamRank, result: MatchResult): TeamRank => {
+    const teamRank = { ...rank };
+
+    teamRank.totalGames += 1;
+    teamRank.goalsFavor += result.goals.favor;
+    teamRank.goalsOwn += result.goals.own;
+    teamRank.totalPoints += result.points;
+    teamRank.totalVictories += result.victories;
+    teamRank.totalDraws += result.draws;
+    teamRank.totalLosses += result.losses;
+
+    return teamRank;
   };
 
-  private computeGoals = (teamRank: TeamRank, match: IMatch): TeamRank => {
-    const rank = { ...teamRank };
-    rank.totalGames += 1;
-
-    if (rank.id === match.homeTeam) {
-      rank.goalsFavor += match.homeTeamGoals;
-      rank.goalsOwn += match.awayTeamGoals;
+  private getMatchResult = (goals: Goals): MatchResult => {
+    const result: MatchResult = { ...emptyMatchResult, goals };
+    if (goals.favor > goals.own) {
+      result.points += 3;
+      result.victories += 1;
+    } else if (goals.favor === goals.own) {
+      result.points += 1;
+      result.draws += 1;
     } else {
-      rank.goalsFavor += match.awayTeamGoals;
-      rank.goalsOwn += match.homeTeamGoals;
+      result.losses += 1;
     }
+    return result;
+  };
 
-    delete rank.id;
-    return this.setMatchResult(rank);
+  private computeGoals = (match: IMatch, teamId: number): Goals => {
+    const goals: Goals = { favor: 0, own: 0 };
+    const { homeTeam, homeTeamGoals, awayTeamGoals } = match;
+
+    if (teamId === homeTeam) {
+      goals.favor += homeTeamGoals;
+      goals.own += awayTeamGoals;
+    } else {
+      goals.favor += awayTeamGoals;
+      goals.own += homeTeamGoals;
+    }
+    return goals;
+  };
+
+  private parseMatch = (match: IMatch, team: ITeam): MatchResult => {
+    const goals = this.computeGoals(match, team.id);
+    const result = this.getMatchResult(goals);
+    return result;
   };
 
   private getTeamRank = (team: TeamMatches): TeamRank => {
-    const { id, teamName, homeMatches = [], awayMatches = [] } = team;
+    const { teamName, homeMatches = [], awayMatches = [] } = team;
     const matches = [...homeMatches, ...awayMatches];
-    const newRank = { ...emptyRank, id };
-    newRank.name = teamName;
+    let teamRank = { ...emptyRank, name: teamName };
 
-    const rank = matches.reduce(this.computeGoals, newRank);
+    for (let i = 0; i < matches.length; i += 1) {
+      const matchResult = this.parseMatch(matches[i], team);
+      teamRank = this.updateTeamRank(teamRank, matchResult);
+    }
 
-    rank.goalsBalance = rank.goalsFavor - rank.goalsOwn;
-    rank.efficiency = (rank.totalPoints / (rank.totalGames * 3)) * 100;
-    rank.efficiency = Number(rank.efficiency.toFixed(2));
+    teamRank.goalsBalance = teamRank.goalsFavor - teamRank.goalsOwn;
+    teamRank.efficiency = (teamRank.totalPoints / (teamRank.totalGames * 3)) * 100;
+    teamRank.efficiency = Number(teamRank.efficiency.toFixed(2));
 
-    return rank;
+    return teamRank;
   };
 
   private orderByGoalsOwn = (a: TeamRank, b: TeamRank): number => {
@@ -142,8 +189,30 @@ class LeaderBoardService {
         { model: this._matchModel, as: 'awayMatches', where: { inProgress: false } },
       ],
     });
-    const ranks = teams.map(this.getTeamRank);
 
+    const ranks = teams.map(this.getTeamRank);
+    return this.orderTeams(ranks);
+  };
+
+  public getByHomeMatches = async (): Promise<TeamRank[]> => {
+    const teams: TeamMatches[] = await this._teamModel.findAll({
+      include: [
+        { model: this._matchModel, as: 'homeMatches', where: { inProgress: false } },
+      ],
+    });
+
+    const ranks = teams.map(this.getTeamRank);
+    return this.orderTeams(ranks);
+  };
+
+  public getByAwayMatches = async (): Promise<TeamRank[]> => {
+    const teams: TeamMatches[] = await this._teamModel.findAll({
+      include: [
+        { model: this._matchModel, as: 'awayMatches', where: { inProgress: false } },
+      ],
+    });
+
+    const ranks = teams.map(this.getTeamRank);
     return this.orderTeams(ranks);
   };
 }

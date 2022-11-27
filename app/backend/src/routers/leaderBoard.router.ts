@@ -12,7 +12,9 @@ class LeaderBoardRouter {
   }
 
   private config() {
-    this.router.get('/home', this._controller.getAll);
+    this.router.get('/home', this._controller.getByHomeMatches);
+    this.router.get('/away', this._controller.getByAwayMatches);
+    this.router.get('/', this._controller.getAll);
   }
 }
 

@@ -1,6 +1,8 @@
 import Joi = require('joi');
 
-const identifierSchema = Joi.number().integer().min(1).label('Id');
+const positiveInteger = Joi.number().integer().min(0);
+
+const identifierSchema = positiveInteger.min(1).label('Id');
 
 const userSchemas = {
   credentials: Joi.object({
@@ -13,8 +15,8 @@ const matchSchemas = {
   onCreate: Joi.object({
     homeTeam: identifierSchema.required(),
     awayTeam: identifierSchema.required().invalid(Joi.ref('homeTeam')),
-    homeTeamGoals: identifierSchema.required(),
-    awayTeamGoals: identifierSchema.required(),
+    homeTeamGoals: positiveInteger.required(),
+    awayTeamGoals: positiveInteger.required(),
   }),
 };
 

@@ -1,27 +1,7 @@
-import { IMatch } from '../interfaces';
+import { IMatch, ITeamMatches } from '../interfaces';
+import { TeamRank } from '../types';
 import Team from '../database/models/Team';
 import Match from '../database/models/Match';
-
-interface TeamMatches {
-  id: number;
-  teamName: string;
-  homeMatches?: IMatch[];
-  awayMatches?: IMatch[];
-  inProgress?: boolean;
-}
-
-type TeamRank = {
-  name: string;
-  totalPoints: number;
-  totalGames: number;
-  totalVictories: number;
-  totalDraws: number;
-  totalLosses: number;
-  goalsFavor: number;
-  goalsOwn: number;
-  goalsBalance: number;
-  efficiency: number;
-};
 
 type Goals = {
   favor: number;
@@ -118,7 +98,7 @@ class LeaderBoardService {
     return result;
   };
 
-  private getTeamRank = (team: TeamMatches): TeamRank => {
+  private getTeamRank = (team: ITeamMatches): TeamRank => {
     const { teamName, homeMatches = [], awayMatches = [] } = team;
     const matches = [...homeMatches, ...awayMatches];
     let teamRank = { ...emptyRank, name: teamName };
@@ -183,7 +163,7 @@ class LeaderBoardService {
   });
 
   public getAll = async (): Promise<TeamRank[]> => {
-    const teams: TeamMatches[] = await this._teamModel.findAll({
+    const teams: ITeamMatches[] = await this._teamModel.findAll({
       include: [
         { model: this._matchModel, as: 'homeMatches', where: { inProgress: false } },
         { model: this._matchModel, as: 'awayMatches', where: { inProgress: false } },
@@ -195,7 +175,7 @@ class LeaderBoardService {
   };
 
   public getByHomeMatches = async (): Promise<TeamRank[]> => {
-    const teams: TeamMatches[] = await this._teamModel.findAll({
+    const teams: ITeamMatches[] = await this._teamModel.findAll({
       include: [
         { model: this._matchModel, as: 'homeMatches', where: { inProgress: false } },
       ],
@@ -206,7 +186,7 @@ class LeaderBoardService {
   };
 
   public getByAwayMatches = async (): Promise<TeamRank[]> => {
-    const teams: TeamMatches[] = await this._teamModel.findAll({
+    const teams: ITeamMatches[] = await this._teamModel.findAll({
       include: [
         { model: this._matchModel, as: 'awayMatches', where: { inProgress: false } },
       ],

@@ -18,6 +18,11 @@ const matchSchemas = {
     homeTeamGoals: positiveInteger.required(),
     awayTeamGoals: positiveInteger.required(),
   }),
+
+  onUpdate: Joi.object({
+    homeTeamGoals: positiveInteger.required(),
+    awayTeamGoals: positiveInteger.required(),
+  }),
 };
 
 export {

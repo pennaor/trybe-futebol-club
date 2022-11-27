@@ -1,4 +1,4 @@
-import { IMatch } from '../../interfaces';
+import { IMatchGoals, IMatch } from '../../interfaces';
 import { BadRequest, UnprocessableEntity } from '../../errors';
 import UserCredentials from '../../types/UserCredentials';
 import { userSchemas, identifierSchema, matchSchemas } from './schemas';
@@ -33,8 +33,17 @@ const newMatch = (input: IMatch) => {
   throw new BadRequest(error.message, error);
 };
 
+const updateMatch = (input: IMatchGoals) => {
+  const { error } = matchSchemas.onUpdate.validate(input);
+  if (!error) {
+    return null;
+  }
+  throw new BadRequest(error.message, error);
+};
+
 export default {
   userCredentials,
   identifier,
   newMatch,
+  updateMatch,
 };

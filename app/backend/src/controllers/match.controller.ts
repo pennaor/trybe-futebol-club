@@ -15,6 +15,11 @@ class MatchController {
     return res.status(201).json(match);
   };
 
+  public update: RequestHandler = async (req, res) => {
+    await this._service.update(req.body, req.params.id);
+    return res.status(200).json({ message: 'Updated!' });
+  };
+
   public finish: RequestHandler = async (req, res) => {
     await this._service.finish(req.params.id);
     return res.status(200).json({ message: 'Finished' });

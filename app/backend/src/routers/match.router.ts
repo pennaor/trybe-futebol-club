@@ -14,6 +14,7 @@ class MatchRouter {
 
   private config() {
     this.router.patch('/:id/finish', this._controller.finish);
+    this.router.patch('/:id', this._controller.update);
     this.router.get('/', this._controller.getAll);
     this.router.post('/', authenticateUser, this._controller.create);
   }

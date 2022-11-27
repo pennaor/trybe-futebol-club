@@ -1,8 +1,11 @@
-interface IMatch {
-  homeTeam: number;
+interface IMatchGoals {
   homeTeamGoals: number;
-  awayTeam: number;
   awayTeamGoals: number;
 }
 
-export default IMatch;
+interface IMatch extends IMatchGoals {
+  homeTeam: number;
+  awayTeam: number;
+}
+
+export { IMatchGoals, IMatch };

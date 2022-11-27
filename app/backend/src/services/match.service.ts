@@ -1,4 +1,4 @@
-import { IMatch } from '../interfaces';
+import { IMatchGoals, IMatch } from '../interfaces';
 import Team from '../database/models/Team';
 import Match from '../database/models/Match';
 import validate from './validations/validateSchema';
@@ -38,6 +38,16 @@ class MatchesService {
       }
       throw error;
     }
+  };
+
+  public update = async (payload: IMatchGoals, matchId: string): Promise<boolean> => {
+    validate.updateMatch(payload);
+    validate.identifier(Number(matchId));
+
+    const [affectedCount] = await this
+      ._matchModel.update({ ...payload }, { where: { id: matchId } });
+
+    return affectedCount === 1;
   };
 
   public finish = async (matchId: string): Promise<void> => {

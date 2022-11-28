@@ -2,6 +2,7 @@ import { IMatch, ITeamMatches } from '../interfaces';
 import { TeamRank } from '../types';
 import Team from '../database/models/Team';
 import Match from '../database/models/Match';
+import SortTeams from './helpers/SortTeams';
 
 type Goals = {
   favor: number;
@@ -115,53 +116,6 @@ class LeaderBoardService {
     return teamRank;
   };
 
-  private orderByGoalsOwn = (a: TeamRank, b: TeamRank): number => {
-    if (a.goalsOwn < b.goalsOwn) {
-      return -1;
-    }
-    return 0;
-  };
-
-  private orderByGoalsFavor = (a: TeamRank, b: TeamRank): number => {
-    if (a.goalsFavor === b.goalsFavor) {
-      return this.orderByGoalsOwn(a, b);
-    }
-    if (a.goalsFavor > b.goalsFavor) {
-      return -1;
-    }
-    return 0;
-  };
-
-  private orderByGoalsBalance = (a: TeamRank, b: TeamRank): number => {
-    if (a.goalsBalance === b.goalsBalance) {
-      return this.orderByGoalsFavor(a, b);
-    }
-    if (a.goalsBalance > b.goalsBalance) {
-      return -1;
-    }
-    return 0;
-  };
-
-  private orderByVictories = (a: TeamRank, b: TeamRank): number => {
-    if (a.totalVictories === b.totalVictories) {
-      return this.orderByGoalsBalance(a, b);
-    }
-    if (a.totalVictories > b.totalVictories) {
-      return -1;
-    }
-    return 0;
-  };
-
-  private orderTeams = (teamRanks: TeamRank[]): TeamRank[] => teamRanks.sort((a, b) => {
-    if (a.totalPoints === b.totalPoints) {
-      return this.orderByVictories(a, b);
-    }
-    if (a.totalPoints > b.totalPoints) {
-      return -1;
-    }
-    return 0;
-  });
-
   public getAll = async (): Promise<TeamRank[]> => {
     const teams: ITeamMatches[] = await this._teamModel.findAll({
       include: [
@@ -171,10 +125,10 @@ class LeaderBoardService {
     });
 
     const ranks = teams.map(this.getTeamRank);
-    return this.orderTeams(ranks);
+    return new SortTeams(ranks).sort();
   };
 
-  public getByHomeMatches = async (): Promise<TeamRank[]> => {
+  public getByHomeMatches = async (): Promise<ITeamMatches[]> => {
     const teams: ITeamMatches[] = await this._teamModel.findAll({
       include: [
         { model: this._matchModel, as: 'homeMatches', where: { inProgress: false } },
@@ -182,7 +136,7 @@ class LeaderBoardService {
     });
 
     const ranks = teams.map(this.getTeamRank);
-    return this.orderTeams(ranks);
+    return teams;
   };
 
   public getByAwayMatches = async (): Promise<TeamRank[]> => {
@@ -193,7 +147,7 @@ class LeaderBoardService {
     });
 
     const ranks = teams.map(this.getTeamRank);
-    return this.orderTeams(ranks);
+    return new SortTeams(ranks).sort();
   };
 }
 

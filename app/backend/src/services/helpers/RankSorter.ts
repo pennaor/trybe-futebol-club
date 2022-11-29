@@ -1,4 +1,4 @@
-import { TeamRank } from '../../types';
+import { TeamRank, IRankParser } from '../../types';
 
 type SortCondition = (afterElement: TeamRank, beforeElement: TeamRank) => boolean;
 
@@ -10,8 +10,8 @@ interface SortRulesMap {
   [key: string]: SortCondition
 }
 
-class SortTeams {
-  readonly sortRulesDefault: SortRulesMap = {
+class RankSorter {
+  private _sortRulesDefault: SortRulesMap = {
     totalPoints: (a, b) => a.totalPoints > b.totalPoints,
     totalVictories: (a, b) => a.totalVictories > b.totalVictories,
     goalsBalance: (a, b) => a.goalsBalance > b.goalsBalance,
@@ -19,29 +19,21 @@ class SortTeams {
     goalsOwn: (a, b) => a.goalsOwn < b.goalsOwn,
   };
 
-  private _sortRules: SortRules;
+  private _sortRules!: SortRules;
 
-  private _teamsRank: TeamRank[];
+  private _teamsRank!: TeamRank[];
 
   private _sortIndexCount = 0;
 
   constructor(
-    teamsRank: TeamRank[],
+    rankPaser: IRankParser,
     rules?: SortRulesMap,
   ) {
-    this._teamsRank = teamsRank;
-    this._sortRules = this.parseSortRules(rules ?? this.sortRulesDefault);
+    this._teamsRank = rankPaser.parse();
+    this._sortRules = this.parseSortRules(rules ?? this._sortRulesDefault);
   }
 
-  public get teamsRank(): TeamRank[] {
-    return this._teamsRank;
-  }
-
-  public get sortRules(): SortRules {
-    return this._sortRules;
-  }
-
-  public parseSortRules(rules: SortRulesMap): SortRules {
+  private parseSortRules(rules: SortRulesMap): SortRules {
     const sortRules = Object.entries(rules);
     const rankKeys = Object.keys(this.teamsRank[0]);
     if (!sortRules.every(([name, _c]) => rankKeys.includes(name))) {
@@ -50,12 +42,8 @@ class SortTeams {
     return sortRules as SortRules;
   }
 
-  public changeSortRules(rules: SortRulesMap) {
-    this._sortRules = this.parseSortRules(rules);
-  }
-
-  public runRulesConditions = (a: TeamRank, b: TeamRank): number => {
-    const rule = this.sortRules[this._sortIndexCount];
+  private runRulesConditions = (a: TeamRank, b: TeamRank): number => {
+    const rule = this._sortRules[this._sortIndexCount];
     if (rule) {
       const [key, condition] = rule;
       if (condition(a, b)) {
@@ -71,7 +59,11 @@ class SortTeams {
     return 0;
   };
 
+  public get teamsRank(): TeamRank[] {
+    return this._teamsRank;
+  }
+
   public sort = (): TeamRank[] => this.teamsRank.sort(this.runRulesConditions);
 }
 
-export default SortTeams;
+export default RankSorter;

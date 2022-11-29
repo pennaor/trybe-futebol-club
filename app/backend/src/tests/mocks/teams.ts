@@ -9,10 +9,20 @@ const teams = [
   },
   {
     id: 3,
-    teamName: 'Real Fogo'
+    teamName: 'Fogo Real'
+  },
+  {
+    id: 4,
+    teamName: 'Belo Time'
+  },
+  {
+    id: 5,
+    teamName: 'São Janeiro'
+  },
+  {
+    id: 6,
+    teamName: 'Rio Paulo'
   },
 ]
 
-export {
-  teams
-};
+export default teams;

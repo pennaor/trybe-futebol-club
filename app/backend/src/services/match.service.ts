@@ -1,4 +1,4 @@
-import { IMatchGoals, IMatch } from '../interfaces';
+import { IMatchGoals, IMatch } from '../types';
 import Team from '../database/models/Team';
 import Match from '../database/models/Match';
 import validate from './validations/validateSchema';

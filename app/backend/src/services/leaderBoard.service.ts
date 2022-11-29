@@ -1,55 +1,38 @@
-import { IMatch, ITeamMatches } from '../interfaces';
-import { TeamRank } from '../types';
+import { IMatch, ITeamMatches, TeamRank, MatchResult, Goals } from '../types';
 import Team from '../database/models/Team';
 import Match from '../database/models/Match';
 import SortTeams from './helpers/SortTeams';
-
-type Goals = {
-  favor: number;
-  own: number;
-};
-
-type MatchResult = {
-  points: 0 | 1 | 3;
-  victories: 0 | 1;
-  draws: 0 | 1;
-  losses: 0 | 1;
-  goals: Goals;
-};
-
-const emptyMatchResult: MatchResult = {
-  points: 0,
-  victories: 0,
-  draws: 0,
-  losses: 0,
-  goals: {
-    favor: 0,
-    own: 0,
-  },
-};
-
-const emptyRank: TeamRank = {
-  name: '',
-  totalPoints: 0,
-  totalGames: 0,
-  totalVictories: 0,
-  totalDraws: 0,
-  totalLosses: 0,
-  goalsFavor: 0,
-  goalsOwn: 0,
-  goalsBalance: 0,
-  efficiency: 0,
-};
-
-interface ITeam {
-  id: number;
-  teamName: string;
-}
 
 class LeaderBoardService {
   private _teamModel = Team;
 
   private _matchModel = Match;
+
+  private generateEmptyRank = (init: object): TeamRank => ({
+    name: '',
+    totalPoints: 0,
+    totalGames: 0,
+    totalVictories: 0,
+    totalDraws: 0,
+    totalLosses: 0,
+    goalsFavor: 0,
+    goalsOwn: 0,
+    goalsBalance: 0,
+    efficiency: 0,
+    ...init,
+  });
+
+  private generateEmptyResult = (init: object): MatchResult => ({
+    points: 0,
+    victories: 0,
+    draws: 0,
+    losses: 0,
+    goals: {
+      favor: 0,
+      own: 0,
+    },
+    ...init,
+  });
 
   private updateTeamRank = (rank: TeamRank, result: MatchResult): TeamRank => {
     const teamRank = { ...rank };
@@ -66,7 +49,7 @@ class LeaderBoardService {
   };
 
   private getMatchResult = (goals: Goals): MatchResult => {
-    const result: MatchResult = { ...emptyMatchResult, goals };
+    const result: MatchResult = this.generateEmptyResult({ goals });
     if (goals.favor > goals.own) {
       result.points += 3;
       result.victories += 1;
@@ -93,7 +76,7 @@ class LeaderBoardService {
     return goals;
   };
 
-  private parseMatch = (match: IMatch, team: ITeam): MatchResult => {
+  private parseMatch = (match: IMatch, team: ITeamMatches): MatchResult => {
     const goals = this.computeGoals(match, team.id);
     const result = this.getMatchResult(goals);
     return result;
@@ -102,7 +85,7 @@ class LeaderBoardService {
   private getTeamRank = (team: ITeamMatches): TeamRank => {
     const { teamName, homeMatches = [], awayMatches = [] } = team;
     const matches = [...homeMatches, ...awayMatches];
-    let teamRank = { ...emptyRank, name: teamName };
+    let teamRank = this.generateEmptyRank({ name: teamName });
 
     for (let i = 0; i < matches.length; i += 1) {
       const matchResult = this.parseMatch(matches[i], team);
@@ -128,7 +111,7 @@ class LeaderBoardService {
     return new SortTeams(ranks).sort();
   };
 
-  public getByHomeMatches = async (): Promise<ITeamMatches[]> => {
+  public getByHomeMatches = async (): Promise<TeamRank[]> => {
     const teams: ITeamMatches[] = await this._teamModel.findAll({
       include: [
         { model: this._matchModel, as: 'homeMatches', where: { inProgress: false } },
@@ -136,7 +119,7 @@ class LeaderBoardService {
     });
 
     const ranks = teams.map(this.getTeamRank);
-    return teams;
+    return new SortTeams(ranks).sort();
   };
 
   public getByAwayMatches = async (): Promise<TeamRank[]> => {

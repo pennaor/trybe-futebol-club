@@ -1,7 +1,7 @@
 import * as Jwt from 'jsonwebtoken';
 import 'dotenv/config';
 import { Unauthorized } from '../errors';
-import { JwtUserPayload } from '../interfaces';
+import { JwtUserPayload } from '../types';
 
 const secret = process.env.JWT_SECRET as string;
 

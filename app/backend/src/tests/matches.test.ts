@@ -8,15 +8,19 @@ import Match from '../database/models/Match';
 import matches from './mocks/matches';
 import { fkContraintError } from './mocks/errors';
 import JwtEvaluator from '../utils/JwtEvaluator';
-import { JwtUserPayload } from '../interfaces';
+import { JwtUserPayload } from '../types';
 
 chai.use(chaiHttp);
 const { app } = new App();
 const { expect } = chai;
 
 describe('Rotas GET de matches', async function () {
+  afterEach(async function () {
+    sinon.restore();
+  });
+
   it('GET "/matches" deve responder com status code 200 e array das partidas', async function () {
-    const matchFindAll = sinon
+    sinon
       .stub(Match, 'findAll')
       .resolves(matches.all as Match[]);
 
@@ -47,12 +51,10 @@ describe('Rotas GET de matches', async function () {
       expect(match).haveOwnProperty('inProgress');
       expect(match.inProgress).to.be.a('boolean');
     });
-
-    matchFindAll.restore()
   });
 
   it('GET "/matches?inProgress=true" deve responder com status code 200 e array das partidas em andamento', async function () {
-    const matchFindAll = sinon
+    sinon
       .stub(Match, 'findAll')
       .resolves(matches.inProgress as Match[]);
 
@@ -83,12 +85,10 @@ describe('Rotas GET de matches', async function () {
       expect(match).haveOwnProperty('inProgress');
       expect(match.inProgress).to.be.a('boolean');
     });
-
-    matchFindAll.restore();
   });
 
   it('GET "/matches?inProgress=false" deve responder com status code 200 e array das partidas em andamento', async function () {
-    const matchFindAll = sinon
+    sinon
       .stub(Match, 'findAll')
       .resolves(matches.finished as Match[]);
 
@@ -119,16 +119,14 @@ describe('Rotas GET de matches', async function () {
       expect(match).haveOwnProperty('inProgress');
       expect(match.inProgress).to.be.a('boolean');
     });
-
-    matchFindAll.restore();
   });
 
   it('POST "/matches" deve responder com status code 201 e match criada', async function () {
-    const matchCreate = sinon
+    sinon
       .stub(Match, 'create')
       .resolves(matches.new as Match);
 
-    const validateToken = sinon
+    sinon
       .stub(JwtEvaluator, 'validateToken')
       .returns({} as JwtUserPayload);
 
@@ -158,17 +156,14 @@ describe('Rotas GET de matches', async function () {
 
     expect(response.body).haveOwnProperty('inProgress');
     expect(response.body.inProgress).to.be.a('boolean');
-
-    matchCreate.restore();
-    validateToken.restore();
   });
 
   it('POST "/matches" deve responder com status code 404 se não existir um time com o ID enviado na requisição', async function () {
-    const matchCreate = sinon
+    sinon
       .stub(Match, 'create')
       .throws(fkContraintError);
 
-    const validateToken = sinon
+    sinon
       .stub(JwtEvaluator, 'validateToken')
       .returns({} as JwtUserPayload);
 
@@ -185,13 +180,10 @@ describe('Rotas GET de matches', async function () {
 
     expect(response.body).haveOwnProperty('message');
     expect(response.body.message).to.be.equal('There is no team with such id!');
-
-    matchCreate.restore();
-    validateToken.restore();
   });
 
   it('PATCH "/matches/:id/finish" deve responder com status code 200 e mensagem "Finished"', async function () {
-    const matchUpdate = sinon
+    sinon
       .stub(Match, 'update')
       .resolves();
 
@@ -206,12 +198,6 @@ describe('Rotas GET de matches', async function () {
 
     expect(response.body).haveOwnProperty('message');
     expect(response.body.message).to.be.equal('Finished');
-
-    matchUpdate.restore();
-  });
-
-  it('leaderboard', async function () {
-
   });
 });
 

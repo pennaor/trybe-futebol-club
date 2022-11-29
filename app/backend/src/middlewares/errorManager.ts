@@ -1,7 +1,6 @@
 import { ErrorRequestHandler } from 'express';
 
 const errorManager: ErrorRequestHandler = (error, _req, res, _next) => {
-  console.error(error);
   const { name, statusCode, message } = error;
   if (name === 'AppError') {
     return res.status(statusCode).json({ message });

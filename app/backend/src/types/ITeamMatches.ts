@@ -1,11 +1,10 @@
 import { IMatch } from './IMatch';
+import Team from './Team';
 
-interface ITeamMatches {
-  id: number;
-  teamName: string;
+interface ITeamMatches extends Team {
   homeMatches?: IMatch[];
   awayMatches?: IMatch[];
   inProgress?: boolean;
 }
 
-export default ITeamMatches;
+export { Team, ITeamMatches };

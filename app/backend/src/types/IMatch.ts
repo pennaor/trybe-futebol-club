@@ -8,4 +8,4 @@ interface IMatch extends IMatchGoals {
   awayTeam: number;
 }
 
-export { IMatchGoals, IMatch };
+export { IMatch, IMatchGoals };

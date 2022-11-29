@@ -2,7 +2,7 @@ import { compareSync } from 'bcryptjs';
 import UserCredentials from '../types/UserCredentials';
 import User from '../database/models/User';
 import JwtEvaluator from '../utils/JwtEvaluator';
-import { JwtUserPayload } from '../interfaces';
+import { JwtUserPayload } from '../types';
 import validate from './validations/validateSchema';
 import { Unauthorized } from '../errors';
 

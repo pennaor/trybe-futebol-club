@@ -14,12 +14,16 @@ const { app } = new App();
 const { expect } = chai;
 
 describe('Rotas de login', async function () {
+  afterEach(async function () {
+    sinon.restore();
+  });
+
   it('a api deve responder com um token se passado credenciais de usuário válidas', async function () {
-    const compareSync = sinon
+    sinon
       .stub(bcryptjs, 'compareSync')
       .returns(true);
 
-    const userFindOne = sinon
+    sinon
       .stub(User, 'findOne')
       .resolves({ dataValues: { ...user } } as User);
 
@@ -32,13 +36,10 @@ describe('Rotas de login', async function () {
     expect(response.body).to.haveOwnProperty('token');    
     expect(response.body.token).to.be.a('string');    
     expect(response.body.token).to.have.length(mockToken.length);
-
-    userFindOne.restore();
-    compareSync.restore();
   });
 
   it('a api deve responder com o Id e role do usuário da requisição GET "/login/validate"', async function () {
-    const verifyToken = sinon
+    sinon
       .stub(JwtEvaluator, 'validateToken')
       .returns({ id: user.id, role: user.role });
 
@@ -51,7 +52,5 @@ describe('Rotas de login', async function () {
     expect(response.body).to.not.haveOwnProperty('id');
     expect(response.body).to.haveOwnProperty('role');    
     expect(response.body.role).to.be.equal(user.role);
-
-    verifyToken.restore();
   });
 });

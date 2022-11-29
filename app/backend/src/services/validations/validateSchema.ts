@@ -1,4 +1,4 @@
-import { IMatchGoals, IMatch } from '../../interfaces';
+import { IMatchGoals, IMatch } from '../../types';
 import { BadRequest, UnprocessableEntity } from '../../errors';
 import UserCredentials from '../../types/UserCredentials';
 import { userSchemas, identifierSchema, matchSchemas } from './schemas';

@@ -1,11 +1,14 @@
 {
   "name": "tfc-backend",
   "version": "1.0.0",
+  "engines": {
+    "node": ">=16.0.0 <17.0.0"
+  },
   "description": "",
   "main": "./build/server",
   "scripts": {
     "build": "/bin/sh tsc_eval.sh",
-    "test": "mocha -r ts-node/register ./src/tests/*$NAME*.{test,spec}.ts -t 10000 --exit",
+    "test": "mocha -r ts-node/register ./src/tests/*.{test,spec}.ts -t 10000 --exit",
     "test:coverage": "nyc npm run test",
     "test:coverage:json": "nyc --reporter=json-summary npm run test",
     "db:reset": "npx sequelize-cli db:drop && npx sequelize-cli db:create && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all",
@@ -59,7 +62,7 @@
     "express": "4.17.1",
     "express-async-errors": "^3.1.1",
     "jest": "27.4.3",
-    "joi": "^17.6.0",
+    "joi": "^17.7.0",
     "jsonwebtoken": "8.5.1",
     "mysql2": "2.3.3",
     "sequelize": "6.25.5"

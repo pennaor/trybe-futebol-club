@@ -1,6 +1,6 @@
 # Trybe Futebol Club
 
-A aplicação consiste em um website completo que provê ao usuário o serviço de leitura, e se caso autenticado, possibilidade de criar, atualizar e remover times e partidas de futebol. De acordo com o desempenho dos times, uma tabela de classificação é gerada através de críterios previamente estabelicidos.
+A aplicação consiste em um website completo que provê ao usuário o serviço de leitura, e se caso autenticado, possibilidade de criar, atualizar e remover times e partidas de futebol. De acordo com o desempenho dos times, uma tabela de classificação é gerada através de critérios previamente estabelecidos.
 
 O desenvolvimento do back-end teve como objetivo consolidar meus conhecimentos sobre TypeScript, Programação Orientada a Objetos (POO), e princípios SOLID, sendo utilizado Express seguindo os princípios REST e arquitetura MSC (Model, Service, Controller).
 
